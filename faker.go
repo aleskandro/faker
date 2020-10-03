@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bxcodec/faker/v3/support/slice"
+	"github.com/aleskandro/faker/v4/support/slice"
 )
 
 var (
@@ -1049,7 +1049,7 @@ func extractNumberFromTag(tag string, t reflect.Type) (interface{}, error) {
 	case reflect.Int64:
 		return int64(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
 	case reflect.Float64:
-		return float64(randomFloatWithBoundary(getFloatBoundary(valuesStr[0], valuesStr[1])), nil
+		return randomFloatWithBoundary(getFloatBoundary(valuesStr[0], valuesStr[1])), nil
 	default:
 		return nil, errors.New(ErrNotSupportedTypeForTag)
 	}
@@ -1058,11 +1058,11 @@ func extractNumberFromTag(tag string, t reflect.Type) (interface{}, error) {
 func getNumberBoundary(v1 string, v2 string) numberBoundary {
 	startBoundary, err := extractNumberFromText(v1)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	endBoundary, err := extractNumberFromText(v2)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	boundary := numberBoundary{start: startBoundary, end: endBoundary}
 	return boundary
@@ -1071,16 +1071,15 @@ func getNumberBoundary(v1 string, v2 string) numberBoundary {
 func getFloatBoundary(v1 string, v2 string) floatBoundary {
 	startBoundary, err := extractFloatFromText(v1)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	endBoundary, err := extractFloatFromText(v2
+	endBoundary, err := extractFloatFromText(v2)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	boundary := floatBoundary{start: startBoundary, end: endBoundary}
 	return boundary
 }
-
 
 func extractFloatFromText(text string) (float64, error) {
 	text = strings.TrimSpace(text)
@@ -1136,7 +1135,7 @@ func randomIntegerWithBoundary(boundary numberBoundary) int {
 }
 
 func randomFloatWithBoundary(boundary floatBoundary) float64 {
-	return boundary.start + rand.Float64() * (boundary.end - boundary.start)
+	return boundary.start + rand.Float64()*(boundary.end-boundary.start)
 }
 
 // randomInteger returns a random integer between start and end boundary. [start, end)
