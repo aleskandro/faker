@@ -1,3 +1,3 @@
-module github.com/aleskandro/faker/v3
+module github.com/aleskandro/faker/withFloat
 
 go 1.12
