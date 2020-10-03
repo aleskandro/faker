@@ -1052,6 +1052,8 @@ func extractNumberFromTag(tag string, t reflect.Type) (interface{}, error) {
 		return int32(randomIntegerWithBoundary(boundary)), nil
 	case reflect.Int64:
 		return int64(randomIntegerWithBoundary(boundary)), nil
+	case reflect.Float64:
+		return float64(randomFloatWithBoundary(boundary)), nil
 	default:
 		return nil, errors.New(ErrNotSupportedTypeForTag)
 	}
@@ -1099,6 +1101,10 @@ func randomString(n int, lang *langRuneBoundary) (string, error) {
 // randomIntegerWithBoundary returns a random integer between input start and end boundary. [start, end)
 func randomIntegerWithBoundary(boundary numberBoundary) int {
 	return rand.Intn(boundary.end-boundary.start) + boundary.start
+}
+
+func randomFloatWithBoundary(boundary numberBoundary) float64 {
+	return float64(boundary.start) + rand.Float64() * float64(boundary.end - boundary.start)
 }
 
 // randomInteger returns a random integer between start and end boundary. [start, end)
