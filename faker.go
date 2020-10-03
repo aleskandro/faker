@@ -43,6 +43,11 @@ type numberBoundary struct {
 	end   int
 }
 
+type floatBoundary struct {
+	start float64
+	end   float64
+}
+
 type langRuneBoundary struct {
 	start   rune
 	end     rune
@@ -1022,41 +1027,68 @@ func extractNumberFromTag(tag string, t reflect.Type) (interface{}, error) {
 	if len(valuesStr) != 2 {
 		return nil, fmt.Errorf(ErrWrongFormattedTag, tag)
 	}
-	startBoundary, err := extractNumberFromText(valuesStr[0])
+	switch t.Kind() {
+	case reflect.Uint:
+		return uint(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Uint8:
+		return uint8(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Uint16:
+		return uint16(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Uint32:
+		return uint32(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Uint64:
+		return uint64(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Int:
+		return randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1])), nil
+	case reflect.Int8:
+		return int8(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Int16:
+		return int16(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Int32:
+		return int32(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Int64:
+		return int64(randomIntegerWithBoundary(getNumberBoundary(valuesStr[0], valuesStr[1]))), nil
+	case reflect.Float64:
+		return float64(randomFloatWithBoundary(getFloatBoundary(valuesStr[0], valuesStr[1])), nil
+	default:
+		return nil, errors.New(ErrNotSupportedTypeForTag)
+	}
+}
+
+func getNumberBoundary(v1 string, v2 string) numberBoundary {
+	startBoundary, err := extractNumberFromText(v1)
 	if err != nil {
 		return nil, err
 	}
-	endBoundary, err := extractNumberFromText(valuesStr[1])
+	endBoundary, err := extractNumberFromText(v2)
 	if err != nil {
 		return nil, err
 	}
 	boundary := numberBoundary{start: startBoundary, end: endBoundary}
-	switch t.Kind() {
-	case reflect.Uint:
-		return uint(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Uint8:
-		return uint8(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Uint16:
-		return uint16(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Uint32:
-		return uint32(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Uint64:
-		return uint64(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Int:
-		return randomIntegerWithBoundary(boundary), nil
-	case reflect.Int8:
-		return int8(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Int16:
-		return int16(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Int32:
-		return int32(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Int64:
-		return int64(randomIntegerWithBoundary(boundary)), nil
-	case reflect.Float64:
-		return float64(randomFloatWithBoundary(boundary)), nil
-	default:
-		return nil, errors.New(ErrNotSupportedTypeForTag)
+	return boundary
+}
+
+func getFloatBoundary(v1 string, v2 string) floatBoundary {
+	startBoundary, err := extractFloatFromText(v1)
+	if err != nil {
+		return nil, err
 	}
+	endBoundary, err := extractFloatFromText(v2
+	if err != nil {
+		return nil, err
+	}
+	boundary := floatBoundary{start: startBoundary, end: endBoundary}
+	return boundary
+}
+
+
+func extractFloatFromText(text string) (float64, error) {
+	text = strings.TrimSpace(text)
+	texts := strings.SplitN(text, Equals, -1)
+	if len(texts) != 2 {
+		return 0, fmt.Errorf(ErrWrongFormattedTag, text)
+	}
+	return strconv.ParseFloat(texts[1], 64)
 }
 
 func extractNumberFromText(text string) (int, error) {
@@ -1103,8 +1135,8 @@ func randomIntegerWithBoundary(boundary numberBoundary) int {
 	return rand.Intn(boundary.end-boundary.start) + boundary.start
 }
 
-func randomFloatWithBoundary(boundary numberBoundary) float64 {
-	return float64(boundary.start) + rand.Float64() * float64(boundary.end - boundary.start)
+func randomFloatWithBoundary(boundary floatBoundary) float64 {
+	return boundary.start + rand.Float64() * (boundary.end - boundary.start)
 }
 
 // randomInteger returns a random integer between start and end boundary. [start, end)
